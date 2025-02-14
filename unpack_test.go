@@ -1,7 +1,7 @@
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
-package unpackit_test
+package packutil_test
 
 import (
 	"archive/tar"
@@ -17,7 +17,7 @@ import (
 	"github.com/bradfitz/iter"
 	"github.com/hooklift/assert"
 
-	"github.com/dropsign/unpackit"
+	"github.com/dropsign/packutil"
 )
 
 func TestUnpack(t *testing.T) {
@@ -47,7 +47,7 @@ func TestUnpack(t *testing.T) {
 			assert.Ok(t, err)
 			defer file.Close()
 
-			err = unpackit.Unpack(file, tempDir)
+			err = packutil.UnpackReader(file, tempDir)
 			assert.Ok(t, err)
 
 			length := calcNumberOfFiles(t, tempDir)
@@ -62,18 +62,18 @@ func TestMagicNumber(t *testing.T) {
 		offset   int
 		ftype    string
 	}{
-		{"./fixtures/test.tar.bzip2", 0, "bzip"},
-		{"./fixtures/test.tar.gz", 0, "gzip"},
-		{"./fixtures/test.tar.xz", 0, "xz"},
-		{"./fixtures/test.zip", 0, "zip"},
-		{"./fixtures/test.tar", 257, "tar"},
+		{"../fixtures/test.tar.bzip2", 0, "bzip"},
+		{"../fixtures/test.tar.gz", 0, "gzip"},
+		{"../fixtures/test.tar.xz", 0, "xz"},
+		{"../fixtures/test.zip", 0, "zip"},
+		{"../fixtures/test.tar", 257, "tar"},
 	}
 
 	for _, test := range tests {
 		file, err := os.Open(test.filepath)
 		assert.Ok(t, err)
 
-		ftype, err := unpackit.MagicNumber(bufio.NewReader(file), test.offset)
+		ftype, err := packutil.MagicNumber(bufio.NewReader(file), test.offset)
 		file.Close()
 		assert.Ok(t, err)
 
@@ -118,7 +118,7 @@ func TestUntar(t *testing.T) {
 	assert.Ok(t, err)
 	defer os.RemoveAll(destDir)
 
-	err = unpackit.Untar(r, destDir)
+	err = packutil.UntarReader(r, destDir)
 	assert.Ok(t, err)
 }
 
@@ -165,7 +165,7 @@ func TestUntarOpenFileResourceLeak(t *testing.T) {
 	assert.Ok(t, err)
 	defer os.RemoveAll(destDir)
 
-	err = unpackit.Untar(r, destDir)
+	err = packutil.UntarReader(r, destDir)
 	assert.Ok(t, err)
 }
 
@@ -209,7 +209,7 @@ func TestUnzipOpenFileResourceLeak(t *testing.T) {
 	// Open the zip archive for reading.
 	destPath := filepath.Join(tempPath, "out")
 	os.MkdirAll(destPath, 0o777)
-	err = unpackit.Unzip(testFile, destPath)
+	err = packutil.UnzipReader(testFile, destPath)
 	assert.Ok(t, err)
 }
 
@@ -230,7 +230,7 @@ func TestSanitize(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		a := unpackit.Sanitize(test.malicious)
+		a := packutil.Sanitize(test.malicious)
 		assert.Equals(t, test.sanitized, a)
 	}
 }

@@ -4,7 +4,7 @@
 
 // Package unpackit allows you to easily unpack *.tar.gz, *.tar.bzip2, *.tar.xz, *.zip and *.tar files.
 // There are not CGO involved nor hard dependencies of any type.
-package unpackit
+package packutil
 
 import (
 	"archive/tar"
@@ -74,9 +74,9 @@ func MagicNumber(reader *bufio.Reader, offset int) (string, error) {
 	return "", nil
 }
 
-// Unpack unpacks a compressed stream. Magic numbers are used to determine what
+// UnpackReader unpacks a compressed stream. Magic numbers are used to determine what
 // decompressor and/or unarchiver to use.
-func Unpack(reader io.Reader, destPath string) error {
+func UnpackReader(reader io.Reader, destPath string) error {
 	var err error
 
 	// Makes sure destPath exists
@@ -130,7 +130,7 @@ func Unpack(reader io.Reader, destPath string) error {
 	case "zip":
 		// Like TAR, ZIP is also an archiving format, therefore we can just return
 		// after it finishes
-		return Unzip(r, destPath)
+		return UnzipReader(r, destPath)
 	default:
 		// maybe it is a tarball file
 		decompressingReader = r
@@ -142,7 +142,7 @@ func Unpack(reader io.Reader, destPath string) error {
 		return err
 	}
 	if ftype == "tar" {
-		return Untar(decompressingReader, destPath)
+		return UntarReader(decompressingReader, destPath)
 	}
 
 	// If it's not a TAR archive then save it to disk as is.
@@ -167,9 +167,9 @@ func Unpack(reader io.Reader, destPath string) error {
 	return nil
 }
 
-// Unzip unpacks a ZIP stream. When given a os.File reader it will get its size without
+// UnzipReader unpacks a ZIP stream. When given a os.File reader it will get its size without
 // reading the entire zip file in memory.
-func Unzip(r io.Reader, destPath string) error {
+func UnzipReader(r io.Reader, destPath string) error {
 	var (
 		zr        *zip.Reader
 		readerErr error
@@ -264,8 +264,8 @@ func unzipFile(f *zip.File, destPath string) error {
 	return nil
 }
 
-// Untar unarchives a TAR archive and returns the final destination path or an error
-func Untar(data io.Reader, destPath string) error {
+// UntarReader unarchives a TAR archive and returns the final destination path or an error
+func UntarReader(data io.Reader, destPath string) error {
 	// Makes sure destPath exists
 	if err := os.MkdirAll(destPath, 0o740); err != nil {
 		return err
@@ -371,7 +371,7 @@ func UnpackFS(fs fs.FS, filename string, destPath string) error {
 		_ = f.Close()
 	}()
 
-	return Unpack(f, destPath)
+	return UnpackReader(f, destPath)
 }
 
 // UntarFS is a helper function to easily unpack TAR files
@@ -384,7 +384,7 @@ func UntarFS(fs fs.FS, filename string, destPath string) error {
 		_ = f.Close()
 	}()
 
-	return Untar(f, destPath)
+	return UntarReader(f, destPath)
 }
 
 // UnzipFS is a helper function to easily unpack ZIP files
@@ -397,7 +397,7 @@ func UnzipFS(fs fs.FS, filename string, destPath string) error {
 		_ = f.Close()
 	}()
 
-	return Unzip(f, destPath)
+	return UnzipReader(f, destPath)
 }
 
 // UnpackFile is a helper function to easily unpack TAR files
@@ -410,7 +410,7 @@ func UnpackFile(filename string, destPath string) error {
 		_ = f.Close()
 	}()
 
-	return Unpack(f, destPath)
+	return UnpackReader(f, destPath)
 }
 
 // UntarFile is a helper function to easily unpack TAR files
@@ -423,7 +423,7 @@ func UntarFile(filename string, destPath string) error {
 		_ = f.Close()
 	}()
 
-	return Untar(f, destPath)
+	return UntarReader(f, destPath)
 }
 
 // UnzipFile is a helper function to easily unpack ZIP files
@@ -436,5 +436,5 @@ func UnzipFile(filename string, destPath string) error {
 		_ = f.Close()
 	}()
 
-	return Unzip(f, destPath)
+	return UnzipReader(f, destPath)
 }

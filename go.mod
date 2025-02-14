@@ -1,4 +1,4 @@
-module github.com/dropsign/unpackit
+module github.com/dropsign/packutil
 
 go 1.24.0
 
