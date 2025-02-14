@@ -13,6 +13,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"io/fs"
 	"log"
 	"os"
 	"path"
@@ -358,4 +359,82 @@ func Sanitize(name string) string {
 	}
 
 	return name
+}
+
+// UnpackFS is a helper function to easily unpack files.
+func UnpackFS(fs fs.FS, filename string, destPath string) error {
+	f, err := fs.Open(filename)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = f.Close()
+	}()
+
+	return Unpack(f, destPath)
+}
+
+// UntarFS is a helper function to easily unpack TAR files
+func UntarFS(fs fs.FS, filename string, destPath string) error {
+	f, err := fs.Open(filename)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = f.Close()
+	}()
+
+	return Untar(f, destPath)
+}
+
+// UnzipFS is a helper function to easily unpack ZIP files
+func UnzipFS(fs fs.FS, filename string, destPath string) error {
+	f, err := fs.Open(filename)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = f.Close()
+	}()
+
+	return Unzip(f, destPath)
+}
+
+// UnpackFile is a helper function to easily unpack TAR files
+func UnpackFile(filename string, destPath string) error {
+	f, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = f.Close()
+	}()
+
+	return Unpack(f, destPath)
+}
+
+// UntarFile is a helper function to easily unpack TAR files
+func UntarFile(filename string, destPath string) error {
+	f, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = f.Close()
+	}()
+
+	return Untar(f, destPath)
+}
+
+// UnzipFile is a helper function to easily unpack ZIP files
+func UnzipFile(filename string, destPath string) error {
+	f, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = f.Close()
+	}()
+
+	return Unzip(f, destPath)
 }
