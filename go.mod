@@ -11,7 +11,4 @@ require (
 	github.com/ulikunitz/xz v0.5.12
 )
 
-require (
-	github.com/klauspost/compress v1.17.11 // indirect
-	github.com/klauspost/cpuid v1.3.1 // indirect
-)
+require github.com/klauspost/compress v1.17.11 // indirect
