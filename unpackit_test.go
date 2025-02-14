@@ -1,7 +1,7 @@
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
-package unpackit
+package unpackit_test
 
 import (
 	"archive/tar"
@@ -16,6 +16,8 @@ import (
 
 	"github.com/bradfitz/iter"
 	"github.com/hooklift/assert"
+
+	"github.com/dropsign/unpackit"
 )
 
 func TestUnpack(t *testing.T) {
@@ -45,7 +47,7 @@ func TestUnpack(t *testing.T) {
 			assert.Ok(t, err)
 			defer file.Close()
 
-			err = Unpack(file, tempDir)
+			err = unpackit.Unpack(file, tempDir)
 			assert.Ok(t, err)
 
 			length := calcNumberOfFiles(t, tempDir)
@@ -71,7 +73,7 @@ func TestMagicNumber(t *testing.T) {
 		file, err := os.Open(test.filepath)
 		assert.Ok(t, err)
 
-		ftype, err := magicNumber(bufio.NewReader(file), test.offset)
+		ftype, err := unpackit.MagicNumber(bufio.NewReader(file), test.offset)
 		file.Close()
 		assert.Ok(t, err)
 
@@ -116,7 +118,7 @@ func TestUntar(t *testing.T) {
 	assert.Ok(t, err)
 	defer os.RemoveAll(destDir)
 
-	err = Untar(r, destDir)
+	err = unpackit.Untar(r, destDir)
 	assert.Ok(t, err)
 }
 
@@ -163,7 +165,7 @@ func TestUntarOpenFileResourceLeak(t *testing.T) {
 	assert.Ok(t, err)
 	defer os.RemoveAll(destDir)
 
-	err = Untar(r, destDir)
+	err = unpackit.Untar(r, destDir)
 	assert.Ok(t, err)
 }
 
@@ -207,7 +209,7 @@ func TestUnzipOpenFileResourceLeak(t *testing.T) {
 	// Open the zip archive for reading.
 	destPath := filepath.Join(tempPath, "out")
 	os.MkdirAll(destPath, 0o777)
-	err = Unzip(testFile, destPath)
+	err = unpackit.Unzip(testFile, destPath)
 	assert.Ok(t, err)
 }
 
@@ -228,7 +230,7 @@ func TestSanitize(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		a := sanitize(test.malicious)
+		a := unpackit.Sanitize(test.malicious)
 		assert.Equals(t, test.sanitized, a)
 	}
 }

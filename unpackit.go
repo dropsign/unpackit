@@ -44,7 +44,7 @@ var (
 // 42 5a for .bzip format
 // 75 73 74 61 72 at offset 257 for tar files
 // fd 37 7a 58 5a 00 for .xz format
-func magicNumber(reader *bufio.Reader, offset int) (string, error) {
+func MagicNumber(reader *bufio.Reader, offset int) (string, error) {
 	headerBytes, err := reader.Peek(offset + 6)
 	if err != nil {
 		return "", err
@@ -86,7 +86,7 @@ func Unpack(reader io.Reader, destPath string) error {
 	r := bufio.NewReader(reader)
 
 	// Reads magic number from the stream so we can better determine how to proceed
-	ftype, err := magicNumber(r, 0)
+	ftype, err := MagicNumber(r, 0)
 	if err != nil {
 		return err
 	}
@@ -136,7 +136,7 @@ func Unpack(reader io.Reader, destPath string) error {
 	}
 
 	// Check magic number in offset 257 too see if this is also a TAR file
-	ftype, err = magicNumber(decompressingReader, 257)
+	ftype, err = MagicNumber(decompressingReader, 257)
 	if err != nil {
 		return err
 	}
@@ -145,7 +145,7 @@ func Unpack(reader io.Reader, destPath string) error {
 	}
 
 	// If it's not a TAR archive then save it to disk as is.
-	destRawFile := filepath.Join(destPath, sanitize(path.Base("unknown-pack")))
+	destRawFile := filepath.Join(destPath, Sanitize(path.Base("unknown-pack")))
 
 	// Creates destination file
 	destFile, err := os.Create(destRawFile)
@@ -224,7 +224,7 @@ func unzipFile(f *zip.File, destPath string) error {
 		}
 	}()
 
-	filePath := sanitize(f.Name)
+	filePath := Sanitize(f.Name)
 	destPath = filepath.Join(destPath, filePath)
 
 	// If directories were not included in the archive but are part of the file name,
@@ -290,7 +290,7 @@ func Untar(data io.Reader, destPath string) error {
 			continue
 		}
 
-		fp := filepath.Join(destPath, sanitize(hdr.Name))
+		fp := filepath.Join(destPath, Sanitize(hdr.Name))
 		if hdr.FileInfo().IsDir() {
 			if rootdir == destPath {
 				rootdir = fp
@@ -345,7 +345,7 @@ func untarFile(hdr *tar.Header, tr *tar.Reader, fp, rootdir string) error {
 }
 
 // Sanitizes name to avoid overwriting sensitive system files when unarchiving
-func sanitize(name string) string {
+func Sanitize(name string) string {
 	// Gets rid of volume drive label in Windows
 	if len(name) > 1 && name[1] == ':' && runtime.GOOS == "windows" {
 		name = name[2:]
