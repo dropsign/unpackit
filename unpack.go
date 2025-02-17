@@ -24,7 +24,6 @@ import (
 
 	"github.com/dsnet/compress/bzip2"
 	gzip "github.com/klauspost/pgzip"
-	"github.com/pkg/errors"
 	"github.com/ulikunitz/xz"
 )
 
@@ -102,7 +101,7 @@ func UnpackReader(reader io.Reader, destPath string) error {
 
 		defer func() {
 			if err := gzr.Close(); err != nil {
-				fmt.Printf("%+v", errors.Wrapf(err, "unpackit: failed closing gzip reader"))
+				fmt.Printf("unpackit: failed closing gzip reader: %v", err)
 			}
 		}()
 
@@ -122,7 +121,7 @@ func UnpackReader(reader io.Reader, destPath string) error {
 
 		defer func() {
 			if err := br.Close(); err != nil {
-				fmt.Printf("%+v", errors.Wrapf(err, "unpackit: failed closing bzip2 reader"))
+				fmt.Printf("unpackit: failed closing bzip2 reader: %v", err)
 			}
 		}()
 

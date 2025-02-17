@@ -14,7 +14,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/bradfitz/iter"
 	"github.com/hooklift/assert"
 
 	"github.com/dropsign/packutil"
@@ -134,7 +133,7 @@ func TestUntarOpenFileResourceLeak(t *testing.T) {
 		Name, Body string
 	}, 2000)
 
-	for fileNum := range iter.N(2000) {
+	for fileNum := range 2000 {
 		files[fileNum] = struct {
 			Name, Body string
 		}{
@@ -185,7 +184,7 @@ func TestUnzipOpenFileResourceLeak(t *testing.T) {
 		Name, Body string
 	}, 2000)
 
-	for fileNum := range iter.N(2000) {
+	for fileNum := range 2000 {
 		files[fileNum] = struct {
 			Name, Body string
 		}{
